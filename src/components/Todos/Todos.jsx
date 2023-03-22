@@ -1,16 +1,22 @@
+import axios from "axios";
 import { useState, useEffect } from "react";
-import { useTodosStore } from "../stores/useTodoStore";
+import { Navigate } from "react-router-dom";
+import { useTodosStore } from "../../stores/useTodoStore";
 import "boxicons";
 import "./Todos.css";
 
 const Todos = () => {
+	const [username, setUsername] = useState("");
+	const [navigate, setNavigate] = useState(false);
+	const [inputValue, setInputValue] = useState("");
+
 	const todos = useTodosStore((state) => state.data);
 	const getTodos = useTodosStore((state) => state.getTodos);
 	const createTodo = useTodosStore((state) => state.createTodo);
 	const updateTodo = useTodosStore((state) => state.updateTodo);
 	const deleteTodo = useTodosStore((state) => state.deleteTodo);
 	const isLoading = useTodosStore((state) => state.isLoading);
-	const [inputValue, setInputValue] = useState("");
+
 	const addTodo = () => {
 		if (inputValue === "") {
 			return;
@@ -24,8 +30,28 @@ const Todos = () => {
 		getTodos();
 	}, [getTodos]);
 
+	useEffect(() => {
+		(async () => {
+			try {
+				const { data } = await axios.get("user");
+				setUsername(data.data.user.username);
+			} catch (err) {
+				setNavigate(true);
+			}
+		})();
+	}, [username]);
+
+	if (navigate) {
+		return <Navigate to='/login' />;
+	}
+
 	return (
 		<div>
+			<h5>Hi {username}</h5>
+			<article className=''>
+				Lorem ipsum dolor sit amet, consectetur adipisicing elit. Odio dicta
+				voluptates aperiam, autem exercitationem error.
+			</article>
 			<div>Total: {todos.length}</div>
 			<div>
 				<input

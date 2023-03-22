@@ -1,20 +1,21 @@
 import "./App.css";
-import Todos from "./components/Todos";
+import Header from "./components/Header/Header";
+import Todos from "./components/Todos/Todos";
+import Login from "./components/Login/Login";
+import Register from "./components/Register/Register";
+import { Routes, Route } from "react-router-dom";
 
 function App() {
 	return (
 		<div className='App'>
 			<main className='container'>
-				<center>
-					<h1>Todo App</h1>
-				</center>
-				<article className=''>
-					Lorem ipsum dolor sit amet, consectetur adipisicing elit. Odio dicta
-					voluptates aperiam, autem exercitationem error soluta repellendus
-					rerum, dolores repellat rem voluptas nihil eveniet ex, ducimus quis
-					enim magnam tempore.
-				</article>
-				<Todos />
+				<Header />
+
+				<Routes>
+					<Route exact path='/' element={<Todos />} />
+					<Route path='/login' element={<Login />} />
+					<Route path='/register' element={<Register />} />
+				</Routes>
 			</main>
 		</div>
 	);
