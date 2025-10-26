@@ -62,13 +62,11 @@ jobs:
         env:
           VITE_ENV: staging
 
-      - name: Deploy to Render
-        id: deploy
-        uses: johnbeynon/render-deploy-action@v0.0.8
-        with:
-          service-id: ${{ secrets.RENDER_STAGING_SERVICE_ID }}
-          api-key: ${{ secrets.RENDER_API_KEY }}
-          wait-for-success: true
+      - name: Deploy to Render Staging
+        env:
+          deploy_url: ${{ secrets.RENDER_STAGING_DEPLOY_HOOK_URL }}
+        run: |
+          curl "$deploy_url"
 
       - name: Deployment Summary
         run: |
@@ -102,13 +100,11 @@ jobs:
         env:
           VITE_ENV: production
 
-      - name: Deploy to Render
-        id: deploy
-        uses: johnbeynon/render-deploy-action@v0.0.8
-        with:
-          service-id: ${{ secrets.RENDER_PRODUCTION_SERVICE_ID }}
-          api-key: ${{ secrets.RENDER_API_KEY }}
-          wait-for-success: true
+      - name: Deploy to Render Production
+        env:
+          deploy_url: ${{ secrets.RENDER_PRODUCTION_DEPLOY_HOOK_URL }}
+        run: |
+          curl "$deploy_url"
 
       - name: Create Release
         uses: actions/create-release@v1
