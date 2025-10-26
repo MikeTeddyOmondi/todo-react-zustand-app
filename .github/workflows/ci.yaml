@@ -62,16 +62,11 @@ jobs:
         env:
           VITE_ENV: staging
 
-      - name: Deploy to Render
-        id: deploy
-        uses: JorgeLNJunior/render-deploy@v1.4.6
-        with:
-          service_id: ${{ secrets.RENDER_STAGING_SERVICE_ID }}
-          api_key: ${{ secrets.RENDER_API_KEY }}
-          wait_deploy: true
-          # github_deployment: true
-          # deployment_environment: staging
-          # github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Deploy to Render Staging
+        env:
+          deploy_url: ${{ secrets.RENDER_STAGING_DEPLOY_HOOK_URL }}
+        run: |
+          curl "$deploy_url"
 
       - name: Deployment Summary
         run: |
@@ -105,16 +100,11 @@ jobs:
         env:
           VITE_ENV: production
 
-      - name: Deploy to Render
-        id: deploy
-        uses: JorgeLNJunior/render-deploy@v1.4.6
-        with:
-          service_id: ${{ secrets.RENDER_PRODUCTION_SERVICE_ID }}
-          api_key: ${{ secrets.RENDER_API_KEY }}
-          wait_deploy: true
-          # github_deployment: true
-          # deployment_environment: production
-          # github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Deploy to Render Production
+        env:
+          deploy_url: ${{ secrets.RENDER_PRODUCTION_DEPLOY_HOOK_URL }}
+        run: |
+          curl "$deploy_url"
 
       - name: Create Release
         uses: actions/create-release@v1
