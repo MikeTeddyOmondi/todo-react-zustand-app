@@ -1,74 +1,86 @@
 import axios from "axios";
 import { useState } from "react";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function Login() {
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
-	const [error, setError] = useState("");
-	const [navigate, setNavigate] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-	const handleLogin = async (e) => {
-		e.preventDefault();
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        "login",
+        {
+          email,
+          password,
+        },
+        { withCredentials: true }
+      );
 
-		const response = await axios.post(
-			"login",
-			{
-				email,
-				password,
-			},
-			{ withCredentials: true },
-		);
+      if (response.data.success) {
+        const token = response.data.data.token;
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        localStorage.setItem("token", token);
+        navigate("/", { replace: true });
+      } else {
+        setError(response.data.message || "Login failed");
+      }
+    } catch (err) {
+      setEmail("");
+      setPassword("");
+      setError(err.response?.data?.message || "An error occurred");
+    }
+  };
 
-		if (response.request.status === 500 || response.request.status === 400) {
-			setEmail("");
-			setPassword("");
-			return setError(response.response.data.message);
-		} else if (response.data.success) {
-			axios.defaults.headers.common[
-				"Authorization"
-			] = `Bearer ${response.data.data.token}`;
-			return setNavigate(true);
-		}
-	};
-
-	if (navigate) {
-		return <Navigate to='/' />;
-	}
-
-	return (
-		<>
-			<main className='container main'>
-				<article className='grid'>
-					<div>
-						<hgroup>
-							<h1>Login</h1>
-							<center>{error ? <h6>{error}</h6> : ""}</center>
-						</hgroup>
-						<form onSubmit={handleLogin}>
-							<input
-								type='email'
-								name='email'
-								placeholder='Email'
-								aria-label='Email'
-								autoComplete='email'
-								onChange={(e) => setEmail(e.target.value)}
-							/>
-							<input
-								type='password'
-								name='password'
-								placeholder='Password'
-								aria-label='Password'
-								autoComplete='current-password'
-								onChange={(e) => setPassword(e.target.value)}
-							/>
-							<button type='submit' className='contrast'>
-								Login
-							</button>
-						</form>
-					</div>
-				</article>
-			</main>
-		</>
-	);
+  return (
+    <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[calc(100vh-80px)]">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Login</CardTitle>
+          <CardDescription>Enter your credentials to access your account</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Input
+                type="email"
+                name="email"
+                placeholder="Email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Input
+                type="password"
+                name="password"
+                placeholder="Password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <Button type="submit" variant="default" className="w-full">
+              Login
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

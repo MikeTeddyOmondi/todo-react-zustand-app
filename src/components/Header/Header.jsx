@@ -1,39 +1,46 @@
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 export default function Header() {
-	const navigate = useNavigate();
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
-	const handleLogout = async () => {
-		const response = await axios.post("logout", {}, { withCredentials: true });
+  const handleLogout = async () => {
+    try {
+      await axios.post("logout", {}, { withCredentials: true });
+    } catch (_err) {
+      // logout may fail, but we still clear auth
+    }
+    // Always clear local auth
+    localStorage.removeItem("token");
+    delete axios.defaults.headers.common["Authorization"];
+    navigate("/login", { replace: true });
+  };
 
-		if (response.data.success) {
-			navigate("/login");
-			navigate(0);
-			return;
-		}
-	};
-
-	return (
-		<nav>
-			<ul>
-				<li>
-					<strong>
-						<Link to='/'>Todo App</Link>
-					</strong>
-				</li>
-			</ul>
-			<ul>
-				<li>
-					<Link to='/register'>Sign Up</Link>
-				</li>
-				<li>
-					<Link to='/login'>Login</Link>
-				</li>
-				<li>
-					<button onClick={handleLogout}>Logout</button>
-				</li>
-			</ul>
-		</nav>
-	);
+  return (
+    <header className="border-b">
+      <div className="container flex items-center justify-between px-4 py-4 mx-auto">
+        <Link to="/" className="text-2xl font-bold">
+          Todo App
+        </Link>
+        <nav className="flex items-center gap-4">
+          {!token ? (
+            <>
+              <Button variant="ghost" onClick={() => navigate("/register")}>
+                Sign Up
+              </Button>
+              <Button variant="ghost" onClick={() => navigate("/login")}>
+                Login
+              </Button>
+            </>
+          ) : (
+            <Button onClick={handleLogout} variant="outline" className="border-outline">
+              Logout
+            </Button>
+          )}
+        </nav>
+      </div>
+    </header>
+  );
 }
